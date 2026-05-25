@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="NutriBlob"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%232D1B69'/><defs><radialGradient id='lb' cx='40%25' cy='30%25' r='70%25'><stop offset='0%25' stop-color='%23FF80C0'/><stop offset='100%25' stop-color='%237C4DFF'/></radialGradient><radialGradient id='le' cx='35%25' cy='30%25' r='65%25'><stop offset='0%25' stop-color='%2382EEFF'/><stop offset='100%25' stop-color='%230080CC'/></radialGradient></defs><ellipse cx='90' cy='110' rx='58' ry='50' fill='url(%23lb)'/><ellipse cx='90' cy='72' rx='50' ry='48' fill='url(%23lb)'/><ellipse cx='90' cy='65' rx='44' ry='40' fill='%23FF80C0' opacity='.35'/><ellipse cx='63' cy='70' rx='19' ry='19' fill='%23fff'/><ellipse cx='117' cy='70' rx='19' ry='19' fill='%23fff'/><ellipse cx='63' cy='70' rx='12' ry='12' fill='url(%23le)'/><ellipse cx='117' cy='70' rx='12' ry='12' fill='url(%23le)'/><ellipse cx='66' cy='64' rx='4' ry='4' fill='%23fff' opacity='.9'/><ellipse cx='120' cy='64' rx='4' ry='4' fill='%23fff' opacity='.9'/><path d='M76 118 Q90 134 104 118' stroke='rgba(255,255,255,0.85)' stroke-width='4' stroke-linecap='round' fill='none'/></svg>"/>
 <meta name="theme-color" content="#1A0E3F"/>
 <title>NutriBlob</title>
 <style>
@@ -229,37 +230,19 @@
     <div class="card accent-purple">
       <span class="card-label" style="color:#B388FF">➕ Adicionar alimento</span>
       <select id="meal-select" style="margin-bottom:10px"></select>
-      <div class="grid2" style="margin-bottom:8px">
-        <button class="btn btn-primary" onclick="document.getElementById('photo-modal').classList.add('open')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Foto
-        </button>
-        <button class="btn btn-ghost" onclick="document.getElementById('manual-form').scrollIntoView({behavior:'smooth'})">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Manual
-        </button>
-      </div>
       <div id="manual-form" style="border-top:0.5px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px">
-        <div style="position:relative">
-          <input type="text" id="food-name" placeholder="Nome do alimento (ex: arroz integral)"/>
-          <span id="auto-badge" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,#00E676,#00BCD4);color:#1A0E3F;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px">AUTO</span>
-        </div>
-        <input type="number" id="food-qty" placeholder="Quantidade (g)" style=""/>
-        <div style="background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px">
-          <p style="font-size:10px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em;font-weight:700">Macros calculados <span style="color:var(--hint);font-weight:400">(editáveis)</span></p>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-            <div>
-              <p style="font-size:9px;color:#B388FF;margin-bottom:4px;font-weight:700">PROT (g)</p>
-              <input type="number" id="food-protein" placeholder="0"/>
-            </div>
-            <div>
-              <p style="font-size:9px;color:#FFD740;margin-bottom:4px;font-weight:700">CARBS (g)</p>
-              <input type="number" id="food-carbs" placeholder="0"/>
-            </div>
-            <div>
-              <p style="font-size:9px;color:#18FFFF;margin-bottom:4px;font-weight:700">LEG (g)</p>
-              <input type="number" id="food-veg" placeholder="0"/>
-            </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div>
+            <p style="font-size:9px;color:#B388FF;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Proteína (g)</p>
+            <input type="number" id="food-protein" placeholder="0"/>
+          </div>
+          <div>
+            <p style="font-size:9px;color:#FFD740;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Carbs (g)</p>
+            <input type="number" id="food-carbs" placeholder="0"/>
+          </div>
+          <div>
+            <p style="font-size:9px;color:#18FFFF;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Legumes (g)</p>
+            <input type="number" id="food-veg" placeholder="0"/>
           </div>
         </div>
         <p id="cal-preview" style="font-size:11px;color:var(--muted);font-family:var(--mono);display:none">🔥 Estimado: <strong style="color:#FF80C0" id="cal-preview-val">0 kcal</strong></p>
@@ -787,29 +770,29 @@ function renderAdherenceTable(data) {
 
 // ── Actions ─────────────────────────────────────────────────────
 async function addEntry() {
-  const name = document.getElementById('food-name').value.trim();
-  if(!name) return;
-  const qty = parseFloat(document.getElementById('food-qty').value)||0;
-  const p=document.getElementById('food-protein').value;
-  const c=document.getElementById('food-carbs').value;
-  const v=document.getElementById('food-veg').value;
+  const p = document.getElementById('food-protein').value;
+  const c = document.getElementById('food-carbs').value;
+  const v = document.getElementById('food-veg').value;
+  if(!p && !c && !v) return;
   const cal = calcCal(p,c,v);
   const mealType = document.getElementById('meal-select').value;
+  const mealLabel = MEALS[mealType].label;
+  const parts = [];
+  if(+p) parts.push(`P:${p}g`);
+  if(+c) parts.push(`C:${c}g`);
+  if(+v) parts.push(`L:${v}g`);
   const entry = {
     id: Date.now().toString(),
     date: selectedDate,
-    name: qty>0 ? `${name} (${qty}g)` : name,
+    name: parts.join(' · '),
     mealType,
     protein:+p||0, carbs:+c||0, vegetables:+v||0, calories:cal
   };
   entries.push(entry);
-  document.getElementById('food-name').value='';
-  document.getElementById('food-qty').value='';
   document.getElementById('food-protein').value='';
   document.getElementById('food-carbs').value='';
   document.getElementById('food-veg').value='';
   document.getElementById('cal-preview').style.display='none';
-  document.getElementById('auto-badge').style.display='none';
   render();
   await gsPost({sheet:'entries',action:'append',row:[entry.id,entry.date,entry.name,entry.mealType,entry.protein,entry.carbs,entry.vegetables,entry.calories]});
 }
@@ -958,48 +941,17 @@ document.getElementById('date-input').addEventListener('change',e=>{
 // ── Creatine btn ────────────────────────────────────────────────
 document.getElementById('creatine-btn').addEventListener('click', toggleCreatine);
 
-// ── Auto-calc macros from food name + quantity ───────────────────
-function autoCalcMacros() {
-  const name = document.getElementById('food-name').value;
-  const qty  = parseFloat(document.getElementById('food-qty').value);
-  const food = findFood(name);
-
-  if(food && qty > 0) {
-    const factor = qty / 100;
-    document.getElementById('food-protein').value = (food.protein * factor).toFixed(1);
-    document.getElementById('food-carbs').value   = (food.carbs   * factor).toFixed(1);
-    document.getElementById('food-veg').value     = food.type==='veg' ? (qty).toFixed(0) : '0';
-    updateCalPreview();
-    // destaca que foi calculado automaticamente
-    document.getElementById('auto-badge').style.display='inline-block';
-  } else {
-    document.getElementById('auto-badge').style.display='none';
-  }
-}
-
-function updateCalPreview() {
-  const p=document.getElementById('food-protein').value;
-  const c=document.getElementById('food-carbs').value;
-  const v=document.getElementById('food-veg').value;
-  if(p||c||v) {
-    document.getElementById('cal-preview').style.display='block';
-    document.getElementById('cal-preview-val').textContent=calcCal(p,c,v).toFixed(0)+' kcal';
-  } else {
-    document.getElementById('cal-preview').style.display='none';
-  }
-}
-
-document.getElementById('food-name').addEventListener('input', ()=>{
-  document.getElementById('auto-badge').style.display='none';
-  // tenta auto-calc se já tem quantidade
-  const qty = parseFloat(document.getElementById('food-qty').value);
-  if(qty>0) autoCalcMacros();
-});
-document.getElementById('food-qty').addEventListener('input', autoCalcMacros);
 ['food-protein','food-carbs','food-veg'].forEach(id=>{
   document.getElementById(id).addEventListener('input', ()=>{
-    document.getElementById('auto-badge').style.display='none';
-    updateCalPreview();
+    const p=document.getElementById('food-protein').value;
+    const c=document.getElementById('food-carbs').value;
+    const v=document.getElementById('food-veg').value;
+    if(p||c||v) {
+      document.getElementById('cal-preview').style.display='block';
+      document.getElementById('cal-preview-val').textContent=calcCal(p,c,v).toFixed(0)+' kcal';
+    } else {
+      document.getElementById('cal-preview').style.display='none';
+    }
   });
 });
 
