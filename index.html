@@ -240,11 +240,27 @@
         </button>
       </div>
       <div id="manual-form" style="border-top:0.5px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px">
-        <input type="text" id="food-name" placeholder="Nome do alimento"/>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-          <input type="number" id="food-protein" placeholder="Prot (g)"/>
-          <input type="number" id="food-carbs" placeholder="Carbs (g)"/>
-          <input type="number" id="food-veg" placeholder="Leg (g)"/>
+        <div style="position:relative">
+          <input type="text" id="food-name" placeholder="Nome do alimento (ex: arroz integral)"/>
+          <span id="auto-badge" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:linear-gradient(135deg,#00E676,#00BCD4);color:#1A0E3F;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px">AUTO</span>
+        </div>
+        <input type="number" id="food-qty" placeholder="Quantidade (g)" style=""/>
+        <div style="background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px">
+          <p style="font-size:10px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em;font-weight:700">Macros calculados <span style="color:var(--hint);font-weight:400">(editáveis)</span></p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div>
+              <p style="font-size:9px;color:#B388FF;margin-bottom:4px;font-weight:700">PROT (g)</p>
+              <input type="number" id="food-protein" placeholder="0"/>
+            </div>
+            <div>
+              <p style="font-size:9px;color:#FFD740;margin-bottom:4px;font-weight:700">CARBS (g)</p>
+              <input type="number" id="food-carbs" placeholder="0"/>
+            </div>
+            <div>
+              <p style="font-size:9px;color:#18FFFF;margin-bottom:4px;font-weight:700">LEG (g)</p>
+              <input type="number" id="food-veg" placeholder="0"/>
+            </div>
+          </div>
         </div>
         <p id="cal-preview" style="font-size:11px;color:var(--muted);font-family:var(--mono);display:none">🔥 Estimado: <strong style="color:#FF80C0" id="cal-preview-val">0 kcal</strong></p>
         <button class="btn btn-success" onclick="addEntry()">Adicionar</button>
@@ -315,6 +331,67 @@
 </div>
 
 <script>
+// ── Tabela Nutricional (por 100g) ───────────────────────────────
+const FOOD_DB = {
+  // Proteínas
+  "peito de frango":      {protein:31,  carbs:0,   fat:3.6, cal:165,  type:'protein'},
+  "frango grelhado":      {protein:31,  carbs:0,   fat:3.6, cal:165,  type:'protein'},
+  "tilápia":              {protein:26,  carbs:0,   fat:2.7, cal:128,  type:'protein'},
+  "peixe":                {protein:26,  carbs:0,   fat:2.7, cal:128,  type:'protein'},
+  "atum":                 {protein:30,  carbs:0,   fat:1,   cal:132,  type:'protein'},
+  "sardinha":             {protein:25,  carbs:0,   fat:11,  cal:208,  type:'protein'},
+  "carne vermelha":       {protein:26,  carbs:0,   fat:15,  cal:250,  type:'protein'},
+  "filé mignon":          {protein:28,  carbs:0,   fat:8,   cal:193,  type:'protein'},
+  "ovo":                  {protein:13,  carbs:1.1, fat:11,  cal:155,  type:'protein'},
+  "clara de ovo":         {protein:11,  carbs:0.7, fat:0.2, cal:52,   type:'protein'},
+  "whey protein":         {protein:80,  carbs:7,   fat:3,   cal:380,  type:'protein'},
+  "iogurte natural":      {protein:10,  carbs:3.6, fat:0.4, cal:59,   type:'protein'},
+  "cottage":              {protein:11,  carbs:3.4, fat:4.3, cal:98,   type:'protein'},
+  // Carboidratos
+  "arroz integral":       {protein:2.6, carbs:23,  fat:0.9, cal:111,  type:'carbs'},
+  "arroz":                {protein:2.6, carbs:28,  fat:0.3, cal:130,  type:'carbs'},
+  "tapioca":              {protein:0.5, carbs:28,  fat:0.1, cal:115,  type:'carbs'},
+  "pão integral":         {protein:9,   carbs:41,  fat:3.4, cal:247,  type:'carbs'},
+  "batata doce":          {protein:1.6, carbs:20,  fat:0.1, cal:86,   type:'carbs'},
+  "batata inglesa":       {protein:2,   carbs:17,  fat:0.1, cal:77,   type:'carbs'},
+  "mandioca":             {protein:1,   carbs:38,  fat:0.3, cal:159,  type:'carbs'},
+  "mandioquinha":         {protein:1.4, carbs:20,  fat:0.3, cal:88,   type:'carbs'},
+  "inhame":               {protein:1.5, carbs:27,  fat:0.2, cal:118,  type:'carbs'},
+  "macarrão cozido":      {protein:5,   carbs:25,  fat:0.9, cal:131,  type:'carbs'},
+  "quinoa":               {protein:4.4, carbs:21,  fat:1.9, cal:120,  type:'carbs'},
+  "aveia":                {protein:13,  carbs:66,  fat:7,   cal:389,  type:'carbs'},
+  "leite de aveia":       {protein:1,   carbs:6.6, fat:1.5, cal:45,   type:'carbs'},
+  "cuscuz":               {protein:3.8, carbs:23,  fat:0.2, cal:112,  type:'carbs'},
+  // Legumes/vegetais
+  "brócolis":             {protein:2.8, carbs:7,   fat:0.4, cal:34,   type:'veg'},
+  "couve-flor":           {protein:1.9, carbs:5,   fat:0.3, cal:25,   type:'veg'},
+  "abobrinha":            {protein:1.2, carbs:3.1, fat:0.3, cal:17,   type:'veg'},
+  "cenoura":              {protein:0.9, carbs:10,  fat:0.2, cal:41,   type:'veg'},
+  "tomate":               {protein:0.9, carbs:3.9, fat:0.2, cal:18,   type:'veg'},
+  "pepino":               {protein:0.7, carbs:3.6, fat:0.1, cal:16,   type:'veg'},
+  "chuchu":               {protein:0.8, carbs:4.5, fat:0.1, cal:19,   type:'veg'},
+  "berinjela":            {protein:1,   carbs:5.9, fat:0.2, cal:25,   type:'veg'},
+  "vagem":                {protein:1.8, carbs:7,   fat:0.1, cal:31,   type:'veg'},
+  "beterraba":            {protein:1.6, carbs:9.6, fat:0.2, cal:43,   type:'veg'},
+  // Frutas
+  "banana":               {protein:1.1, carbs:23,  fat:0.3, cal:96,   type:'fruit'},
+  "uva":                  {protein:0.7, carbs:18,  fat:0.2, cal:69,   type:'fruit'},
+  "melão":                {protein:0.8, carbs:8.2, fat:0.2, cal:34,   type:'fruit'},
+  "mamão":                {protein:0.6, carbs:11,  fat:0.4, cal:43,   type:'fruit'},
+  // Extras
+  "castanha do pará":     {protein:14,  carbs:12,  fat:66,  cal:656,  type:'other'},
+  "azeite":               {protein:0,   carbs:0,   fat:100, cal:884,  type:'other'},
+};
+
+function findFood(name) {
+  const n = name.toLowerCase().trim();
+  // busca exata
+  if(FOOD_DB[n]) return FOOD_DB[n];
+  // busca parcial
+  const key = Object.keys(FOOD_DB).find(k => n.includes(k) || k.includes(n));
+  return key ? FOOD_DB[key] : null;
+}
+
 // ── Config ──────────────────────────────────────────────────────
 const GS_URL = "https://script.google.com/macros/s/AKfycby3ZGemNjAjElmColr2EyiCoWjEsGyUdHIt2eCW-SzCHIeOjOFGZrbuAT49nfK5-JiS/exec";
 const TARGETS = {protein:160, carbs:320, vegetables:250, calories:2500};
@@ -712,6 +789,7 @@ function renderAdherenceTable(data) {
 async function addEntry() {
   const name = document.getElementById('food-name').value.trim();
   if(!name) return;
+  const qty = parseFloat(document.getElementById('food-qty').value)||0;
   const p=document.getElementById('food-protein').value;
   const c=document.getElementById('food-carbs').value;
   const v=document.getElementById('food-veg').value;
@@ -720,15 +798,18 @@ async function addEntry() {
   const entry = {
     id: Date.now().toString(),
     date: selectedDate,
-    name, mealType,
+    name: qty>0 ? `${name} (${qty}g)` : name,
+    mealType,
     protein:+p||0, carbs:+c||0, vegetables:+v||0, calories:cal
   };
   entries.push(entry);
   document.getElementById('food-name').value='';
+  document.getElementById('food-qty').value='';
   document.getElementById('food-protein').value='';
   document.getElementById('food-carbs').value='';
   document.getElementById('food-veg').value='';
   document.getElementById('cal-preview').style.display='none';
+  document.getElementById('auto-badge').style.display='none';
   render();
   await gsPost({sheet:'entries',action:'append',row:[entry.id,entry.date,entry.name,entry.mealType,entry.protein,entry.carbs,entry.vegetables,entry.calories]});
 }
@@ -877,18 +958,48 @@ document.getElementById('date-input').addEventListener('change',e=>{
 // ── Creatine btn ────────────────────────────────────────────────
 document.getElementById('creatine-btn').addEventListener('click', toggleCreatine);
 
-// ── Cal preview ─────────────────────────────────────────────────
+// ── Auto-calc macros from food name + quantity ───────────────────
+function autoCalcMacros() {
+  const name = document.getElementById('food-name').value;
+  const qty  = parseFloat(document.getElementById('food-qty').value);
+  const food = findFood(name);
+
+  if(food && qty > 0) {
+    const factor = qty / 100;
+    document.getElementById('food-protein').value = (food.protein * factor).toFixed(1);
+    document.getElementById('food-carbs').value   = (food.carbs   * factor).toFixed(1);
+    document.getElementById('food-veg').value     = food.type==='veg' ? (qty).toFixed(0) : '0';
+    updateCalPreview();
+    // destaca que foi calculado automaticamente
+    document.getElementById('auto-badge').style.display='inline-block';
+  } else {
+    document.getElementById('auto-badge').style.display='none';
+  }
+}
+
+function updateCalPreview() {
+  const p=document.getElementById('food-protein').value;
+  const c=document.getElementById('food-carbs').value;
+  const v=document.getElementById('food-veg').value;
+  if(p||c||v) {
+    document.getElementById('cal-preview').style.display='block';
+    document.getElementById('cal-preview-val').textContent=calcCal(p,c,v).toFixed(0)+' kcal';
+  } else {
+    document.getElementById('cal-preview').style.display='none';
+  }
+}
+
+document.getElementById('food-name').addEventListener('input', ()=>{
+  document.getElementById('auto-badge').style.display='none';
+  // tenta auto-calc se já tem quantidade
+  const qty = parseFloat(document.getElementById('food-qty').value);
+  if(qty>0) autoCalcMacros();
+});
+document.getElementById('food-qty').addEventListener('input', autoCalcMacros);
 ['food-protein','food-carbs','food-veg'].forEach(id=>{
-  document.getElementById(id).addEventListener('input',()=>{
-    const p=document.getElementById('food-protein').value;
-    const c=document.getElementById('food-carbs').value;
-    const v=document.getElementById('food-veg').value;
-    if(p||c||v) {
-      document.getElementById('cal-preview').style.display='block';
-      document.getElementById('cal-preview-val').textContent=calcCal(p,c,v).toFixed(0)+' kcal';
-    } else {
-      document.getElementById('cal-preview').style.display='none';
-    }
+  document.getElementById(id).addEventListener('input', ()=>{
+    document.getElementById('auto-badge').style.display='none';
+    updateCalPreview();
   });
 });
 
